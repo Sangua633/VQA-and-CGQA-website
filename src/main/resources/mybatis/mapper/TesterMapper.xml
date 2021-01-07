@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.TesterMapper">
+
+    <select id="queryTesterList" resultType="Tester">
+        select * from tester
+    </select>
+    <select id="queryEditorList" resultType="Tester">
+        select username,password,permission,fullname,sex,age,job,telephone,isUsed from tester where permission!='admin'
+    </select>
+    <select id="queryTesterById" resultType="Tester" >
+        select username,password,permission,fullname,sex,age,job,telephone,isUsed from tester where idtester=#{idtester}
+    </select>
+    <select id="queryTesterByUsername"  resultType="Tester" >
+        select idtester,username,password,permission,fullname,sex,age,job,telephone,isUsed  from tester where username=#{username}
+    </select>
+
+    <insert id="addTester" parameterType="Tester" useGeneratedKeys="true" keyProperty="idtester">
+            insert into tester (username,password,permission,fullname,sex,age,job,telephone,isUsed ) values (#{username},#{password},#{permission},#{fullname},#{sex},#{age},#{job},#{telephone},#{isUsed})
+    </insert>
+
+    <delete id="deleteTesterByID" parameterType="int" >
+        delete from tester where idtester=#{idtester}
+    </delete>
+    <delete id="deleteTesterByUsername" >
+        delete from tester where username=#{username}
+    </delete>
+
+    <update id="updateTester" parameterType="Tester" useGeneratedKeys="true" keyProperty="idtester">
+        update tester set permission=#{permission},fullname=#{fullname},sex=#{sex},age=#{age},job=#{job},telephone=#{telephone},isUsed=#{isUsed} where username=#{username}
+    </update>
+    <update id="updateIsUsedByUsername" >
+        update tester set isUsed=isUsed+#{isUsedStatus} where username=#{username}
+    </update>
+
+<!--    <update id="updateTesterMap" parameterType="map">-->
+<!--        update tester set name=#{username},password=#{password},permission=#{permission} where idtester=#{idtester}-->
+<!--    </update>-->
+
+
+</mapper>

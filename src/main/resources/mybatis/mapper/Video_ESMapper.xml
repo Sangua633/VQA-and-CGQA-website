@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.Video_ESMapper">
+    <insert id="addVideo_ES" parameterType="Video_ES" useGeneratedKeys="true" keyProperty="idvideo_es">
+        insert into video_es (videoName,idEncodingScheme) values (#{videoName},#{idEncodingScheme})
+    </insert>
+    <select id="queryById" resultType="Video_ES">
+         select * from video_es where idvideo_es=#{idvideo_es}
+    </select>
+    <select id="queryVideoNameByIdes" resultType="String">
+         select videoName from video_es where idEncodingScheme=#{idEncodingScheme}
+    </select>
+    <select id="queryIDByIdes" resultType="int">
+         select idvideo_es from video_es where idEncodingScheme=#{idEncodingScheme}
+    </select>
+    <delete id="deleteVideoESByIdes" parameterType="int" >
+        delete from video_es where idEncodingScheme=#{idEncodingScheme}
+    </delete>
+    <update id="updateIsUsedByID" parameterType="int">
+        update video_es set isUsed=isUsed+#{isUsedStatus} where idvideo_es=#{id}
+    </update>
+
+</mapper>

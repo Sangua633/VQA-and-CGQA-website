@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.EncodingSchemeMapper">
+    <select id="queryEncodingSchemeList" resultType="EncodingScheme">
+    select * from EncodingScheme
+  </select>
+
+    <select id="queryEncodingSchemeById" resultType="EncodingScheme">
+        select * from EncodingScheme where idEncodingScheme=#{idEncodingScheme}
+    </select>
+
+
+    <insert id="addEncodingScheme" parameterType="EncodingScheme" useGeneratedKeys="true" keyProperty="idEncodingScheme">
+        insert into EncodingScheme (resolution,frameRate,encoding,encodingType,bitRate,isUsed) values (#{resolution},#{frameRate},#{encoding},#{encodingType},#{bitRate},#{isUsed})
+    </insert>
+
+    <update id="updateEncodingScheme" parameterType="EncodingScheme" useGeneratedKeys="true" keyProperty="idEncodingScheme">
+        update EncodingScheme set encoding=#{encoding},encodingType=#{encodingType},resolution=#{resolution},frameRate=#{frameRate},bitRate=#{bitRate},isUsed=#{isUsed} where idEncodingScheme=#{idEncodingScheme}
+    </update>
+
+    <update id="updateIsUsedByID" parameterType="int">
+        update EncodingScheme set isUsed=isUsed+#{isUsedStatus} where idEncodingScheme=#{id}
+    </update>
+
+    <delete id="deleteEncodingSchemeByID" parameterType="int" >
+        delete from EncodingScheme where idEncodingScheme=#{idEncodingScheme}
+    </delete>
+
+
+
+</mapper>

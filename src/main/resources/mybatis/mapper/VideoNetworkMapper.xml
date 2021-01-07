@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.VideoNetworkMapper">
+    <select id="queryNetworkList" resultType="VideoNetwork">
+        select * from videoNetwork
+    </select>
+    <select id="queryNetwork" resultType="VideoNetwork" parameterType="int">
+        select * from videoNetwork where idvideoNetwork=#{id}
+    </select>
+
+    <insert id="addNetwork" parameterType="VideoNetwork" useGeneratedKeys="true" keyProperty="idvideoNetwork">
+            insert into videoNetwork (bandwidth,packetloss,lossCorrelation,delay,delayJitter,isUsed) values (#{bandwidth},#{packetloss},#{lossCorrelation},#{delay},#{delayJitter},#{isUsed})
+    </insert>
+
+    <delete id="deleteNetworkByID" parameterType="int" >
+        delete from videoNetwork where idvideoNetwork=#{id}
+    </delete>
+
+
+    <update id="updateNetwork" parameterType="VideoNetwork" useGeneratedKeys="true" keyProperty="idvideoNetwork">
+        update videoNetwork set bandwidth=#{bandwidth},packetloss=#{packetloss},lossCorrelation=#{lossCorrelation},delay=#{delay},delayJitter=#{delayJitter},isUsed=#{isUsed} where idvideoNetwork=#{idvideoNetwork}
+    </update>
+    <update id="updateIsUsedByID" parameterType="int">
+        update videoNetwork set isUsed=isUsed+#{isUsedStatus} where idvideoNetwork=#{id}
+    </update>
+
+</mapper>

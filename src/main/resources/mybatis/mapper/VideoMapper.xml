@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.VideoMapper">
+    <select id="queryVideoList" resultType="Video">
+    select * from video
+  </select>
+    <select id="queryVideoById" resultType="Video">
+        select * from video where idvideo=#{idvideo}
+    </select>
+    <select id="queryVideoByVideoname" resultType="Video">
+        select * from video where videoName=#{videoName}
+    </select>
+
+    <insert id="addVideo" parameterType="Video" useGeneratedKeys="true" keyProperty="idvideo">
+        insert into video (videoName,pix_fmt,resolution,frameRate,duration,filePath,motionSpeed) values (#{videoName},#{pix_fmt},#{resolution},#{frameRate},#{duration},#{filePath},#{motionSpeed})
+    </insert>
+
+    <update id="updateVideo" parameterType="Video" useGeneratedKeys="true" keyProperty="idvideo">
+        update video set videoName=#{videoName},pix_fmt=#{pix_fmt},resolution=#{resolution},frameRate=#{frameRate},duration=#{duration},filePath=#{filePath},motionSpeed=#{motionSpeed}
+    </update>
+    <delete id="deleteVideoByID" parameterType="int">
+        delete from video where idvideo=#{idvideo}
+    </delete>
+<!--    <update id="deleteVideoByUsername">-->
+<!--        update from video where videoName=#{videoName}-->
+<!--    </update>-->
+
+</mapper>

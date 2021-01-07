@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.VideoTask_TesterMapper">
+
+    <insert id="add" parameterType="VideoTask_Tester" useGeneratedKeys="true" keyProperty="idVideoTask_Tester">
+        insert into VideoTask_Tester (username,idVideoTask,liveStatus,assessmentStatus) values (#{username},#{idVideoTask},#{liveStatus},#{assessmentStatus})
+    </insert>
+    <select id="queryTask" resultType="VideoTask_Tester">
+        select * from VideoTask_Tester
+    </select>
+    <select id="queryVideoTaskByUsername" resultType="VideoTask_Tester">
+        select * from VideoTask_Tester where username=#{username}
+    </select>
+    <select id="queryByID" resultType="VideoTask_Tester">
+        select * from VideoTask_Tester where idVideoTask_Tester=#{id}
+    </select>
+    <select id="queryUsernameByIdvt" resultType="String">
+        select username from VideoTask_Tester where idVideoTask=#{id}
+    </select>
+    <select id="queryIDByIdvt" resultType="int" parameterType="int">
+        select idVideoTask_Tester from VideoTask_Tester where idVideoTask=#{id}
+    </select>
+    <select id="queryAssessmentStatusByIdvt" resultType="int" parameterType="int">
+        select assessmentStatus from VideoTask_Tester where idVideoTask=#{id}
+    </select>
+    <select id="queryIDByUsernameLive" resultType="int" >
+        select idVideoTask_Tester from VideoTask_Tester  where username=#{username} and liveStatus=#{liveStatus}
+    </select>
+    <select id="getDistinctIdVideoTask" resultType="int">
+        select DISTINCT idVideoTask from VideoTask_Tester
+    </select>
+
+    <update id="updateAssessmentByID">
+        update VideoTask_Tester  set sharpness=#{sharpness},fluency=#{fluency},color=#{color},assessmentStatus=#{assessmentStatus} where idVideoTask_Tester=#{idVideoTask_Tester}
+    </update>
+    <update id="updateAssessmentStatusByID">
+        update VideoTask_Tester  set assessmentStatus=#{assessmentStatus} where idVideoTask_Tester=#{idVideoTask_Tester}
+    </update>
+    <update id="updateLiveStatusByID">
+        update VideoTask_Tester set liveStatus=#{liveStatus} where idVideoTask_Tester=#{idVideoTask_Tester}
+    </update>
+    <update id="updateLiveStatusByUsername" >
+        update VideoTask_Tester set liveStatus=#{liveStatus} where username=#{username} and liveStatus=1
+    </update>
+    <delete id="deleteByIdVideoTask" parameterType="int">
+        delete from VideoTask_Tester where idVideoTask=#{idVideoTask}
+    </delete>
+</mapper>

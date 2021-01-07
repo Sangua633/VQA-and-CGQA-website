@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.VideoTaskMapper">
+    <insert id="addVideoTask" parameterType="VideoTask" useGeneratedKeys="true" keyProperty="idVideoTask">
+        insert into VideoTask (idVideoES,idVideoNetwork,streamType,vodStatus,taskStatus,idmerge) values (#{idVideoES},#{idVideoNetwork},#{streamType},#{vodStatus},#{taskStatus},#{idmerge})
+    </insert>
+<!--    <select id="queryVideoTaskList" resultType="VideoTask">-->
+<!--    select * from VideoTask-->
+<!--  </select>-->
+    <select id="queryVideoTaskListByID" resultType="VideoTask">
+        select * from VideoTask where idVideoTask=#{idVideoTask}
+    </select>
+    <select id="countIdMerge" resultType="int">
+        select count(DISTINCT idmerge) from VideoTask
+    </select>
+    <select id="getDistinctIdMerge" resultType="int">
+        select DISTINCT idmerge from VideoTask;
+    </select>
+    <select id="getMaxIdMerge" resultType="int">
+        select max(idmerge) from VideoTask
+    </select>
+    <select id="queryIdTaskByIdMerge"  resultType="int" parameterType="int">
+        select idVideoTask from VideoTask where idmerge=#{idmerge}
+    </select>
+    <select id="queryVodStatusByID" resultType="int" parameterType="int">
+        select vodStatus from  VideoTask where idVideoTask=#{idVideoTask}
+    </select>
+    <select id="queryStreamTypeByID" parameterType="int" resultType="String" >
+        select streamType from VideoTask where idVideoTask=#{idVideoTask}
+    </select>
+    <select id="queryTaskStatusByID" resultType="int" parameterType="int">
+        select taskStatus from  VideoTask where idVideoTask=#{idVideoTask}
+    </select>
+    <update id="updateVodStatusById" parameterType="int">
+        update VideoTask set vodStatus=#{vodStatus} where idVideoTask=#{idVideoTask}
+    </update>
+    <update id="updateVodURLById" >
+        update VideoTask set vodURL=#{vodURL} where idVideoTask=#{idVideoTask}
+    </update>
+    <update id="updateLiveURLById" >
+        update VideoTask set liveURL=#{liveURL} where idVideoTask=#{idVideoTask}
+    </update>
+    <update id="updateAdminVodURLById" >
+        update VideoTask set adminVodURL=#{adminVodURL} where idVideoTask=#{idVideoTask}
+    </update>
+    <update id="updateTaskStatusById">
+        update VideoTask set taskStatus=#{taskStatus} where idVideoTask=#{idVideoTask}
+    </update>
+    <delete id="deleteByID" parameterType="int">
+        delete from  VideoTask where idVideoTask=#{idVideoTask}
+    </delete>
+
+</mapper>

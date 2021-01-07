@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.game.mapper.GameEncodingSchemeMapper">
+    <select id="queryEncodingSchemeList" resultType="GameEncodingScheme">
+    select * from gameEncodingScheme
+  </select>
+
+    <select id="queryEncodingSchemeById" resultType="GameEncodingScheme">
+        select * from gameEncodingScheme where idgameEncodingScheme=#{idgameEncodingScheme}
+    </select>
+
+
+    <insert id="addEncodingScheme" parameterType="GameEncodingScheme" useGeneratedKeys="true" keyProperty="idgameEncodingScheme">
+        insert into gameEncodingScheme (width,height,frameRate,encoding,bitRate,isUsed,idGame) values (#{width},#{height},#{frameRate},#{encoding},#{bitRate},#{isUsed},#{idGame})
+    </insert>
+
+    <update id="updateEncodingScheme" parameterType="GameEncodingScheme" useGeneratedKeys="true" keyProperty="idgameEncodingScheme">
+        update gameEncodingScheme set encoding=#{encoding},width=#{width},height=#{height},frameRate=#{frameRate},bitRate=#{bitRate},isUsed=#{isUsed},idGame=#{idGame} where idgameEncodingScheme=#{idgameEncodingScheme}
+    </update>
+
+    <update id="updateIsUsedByID" parameterType="int">
+        update gameEncodingScheme set isUsed=isUsed+#{isUsedStatus} where idgameEncodingScheme=#{id}
+    </update>
+
+    <delete id="deleteEncodingSchemeByID" parameterType="int" >
+        delete from gameEncodingScheme where idgameEncodingScheme=#{idgameEncodingScheme}
+    </delete>
+
+
+</mapper>

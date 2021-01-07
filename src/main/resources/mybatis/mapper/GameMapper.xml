@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.game.mapper.GameMapper">
+
+    <select id="queryGameList" resultType="Game">
+    select * from game
+  </select>
+    <select id="queryGameById" resultType="Game">
+        select * from game where idgame=#{id}
+    </select>
+    <select id="queryGameByGameName" resultType="Game">
+        select * from game where gameName=#{gameName}
+    </select>
+
+    <insert id="addGame" parameterType="Game" useGeneratedKeys="true" keyProperty="idgame">
+        insert into game (gameName,gameType,cover) values (#{gameName},#{gameType},#{cover})
+    </insert>
+
+    <update id="updateGame" parameterType="Game" useGeneratedKeys="true" keyProperty="idgame">
+        update game set gameName=#{gameName},gameType=#{gameType},cover=#{cover}
+    </update>
+    <delete id="deleteGameByID" parameterType="int">
+        delete from game where idgame=#{id}
+    </delete>
+</mapper>
