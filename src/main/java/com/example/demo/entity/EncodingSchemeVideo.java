@@ -12,6 +12,7 @@ import java.io.Serializable;
 public class EncodingSchemeVideo implements Serializable {
 
     private static final long serialVersionUID = 2256572560780694545L;
+    private  int idvt;
     private EncodingScheme es;
     private Video video;
 }

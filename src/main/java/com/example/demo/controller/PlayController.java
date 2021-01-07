@@ -40,6 +40,7 @@ public class PlayController {
     private VideoService videoService;
 
 
+
     /**
      * 根据id返回给点播资源的url，需要首先判断点播文件是否被转码
      * @param id 任务videotasktester id

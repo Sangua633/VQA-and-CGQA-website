@@ -5,7 +5,10 @@ import com.example.demo.service.*;
 import com.example.demo.utils.ffmpeg.LivePushCamera;
 import com.example.demo.utils.ffmpeg.LivePushFile;
 import com.example.demo.utils.ffmpeg.VodEncode;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -36,6 +39,9 @@ public class VideoTaskController {
     private  final String vodServerPath = "/usr/local/nginx/html/hlsvod/"; //本机nginx地址
     private  final String liveURL = "http://10.112.79.206:8080/hls/home1.m3u8"; //直播拉流地址
     private int liveIdMerge = -1;  //目前正在直播的流的idmerge  如果没有直播，则为-1
+    @Autowired
+    private RestTemplate restTemplate;
+    private final String mediaServer = "http://192.168.10.119:8085" ;//流媒体服务器url
     /**
      * 增加任务列表
      * @param videoTaskNetworkTester
@@ -243,6 +249,7 @@ public class VideoTaskController {
         for(Integer idvt:idvts){
             //将任务状态变为1
             videoTaskService.updateTaskStatusById(idvt,1);
+            System.out.println("idvt是： "+idvt);
             VideoTask videoTask = videoTaskService.queryTaskByID(idvt);
             //使网络配置生效
             int networkID = videoTask.getIdVideoNetwork();
@@ -275,25 +282,23 @@ public class VideoTaskController {
                 int ides =  video_es.getIdEncodingScheme();
                 EncodingScheme encodingScheme = encodingSchemeService.queryEncodingSchemeById(ides);
                 String videoName = video_es.getVideoName();
-
-                Thread liveTask;
                 //摄像头直播
                 if("camera".equals(videoName)){
-                    System.out.println("××××××××正在摄像头直播×××××××");
-                    LivePushCamera livePushCamera = new LivePushCamera(encodingScheme);
-                    liveTask = new Thread(livePushCamera);
+                    EncodingSchemeVideo encodingSchemeVideo=new EncodingSchemeVideo(idMerge,encodingScheme,new Video(0,"camera","/","/","/","/","/","/"));
+                    pushStreamMediaServer(encodingSchemeVideo);
                 }else{
-                    System.out.println("××××××××正在模拟直播×××××××");
                     Video video = videoService.queryByVideoName(videoName);
-                    LivePushFile livePushFile = new LivePushFile(encodingScheme,video);
-                    liveTask = new Thread(livePushFile);
+                    EncodingSchemeVideo encodingSchemeVideo=new EncodingSchemeVideo(idMerge,encodingScheme,video);
+                    pushStreamMediaServer(encodingSchemeVideo);
                 }
-                liveTask.setName("livePlay");
-                liveTask.start();
-                liveIdMerge = idMerge;
             }
         }
         return "ok";
+    }
+    @GetMapping("setLiveIdMerge")
+    public void setLiveIdMerge(int idMerge){
+        System.out.println("当前直播流 "+idMerge);
+        liveIdMerge = idMerge;
     }
     @GetMapping("/queryLiveIdMerge")
     public int queryLiveIdMerge(){
@@ -314,25 +319,11 @@ public class VideoTaskController {
                 videoTask_testerService.updateAssessmentStatusByID(id, 2);
             }
         }
-//        //得到编码信息和视频源信息
-//        VideoTask videoTask = videoTaskService.queryTaskByID(idvts.get(0));
-//        int idVideoES = videoTask.getIdVideoES();
-//        Video_ES video_es = video_esService.queryById(idVideoES);
-//        int ides =  video_es.getIdEncodingScheme();
-//        String videoName = video_es.getVideoName();
-        System.out.println("××××××××结束直播×××××××");
-        Thread cameraThread = null;
-        for(Thread t:Thread.getAllStackTraces().keySet()){
-            if(t.getName().equals("livePlay")){
-                cameraThread = t;
-            }
-        }
-        System.out.println("camerathread"+cameraThread);
-        if(cameraThread!=null){
-            cameraThread.interrupt();
-        }
+        System.out.println("××××××××正在结束直播×××××××");
+        endCameraLiveMediaServer();
         return "ok";
     }
+
 
     /**
      * 点播转码，获取编码参数、视频源，将编码状态进行转换
@@ -341,6 +332,7 @@ public class VideoTaskController {
      */
     @GetMapping("/vodEncode")
     public String vodEncode(int id) throws ExecutionException, InterruptedException {
+        System.out.println(id);
         //通过idmerge查询idvideotask
         List<Integer> idvts = videoTaskService.queryIdTaskByIdMerge(id);
         for(Integer idvt:idvts){
@@ -354,35 +346,53 @@ public class VideoTaskController {
             EncodingScheme encodingScheme = encodingSchemeService.queryEncodingSchemeById(ides);
             String videoName = video_es.getVideoName();
             Video video = videoService.queryByVideoName(videoName);
-            //判断文件是否存在
-
 
             //将视频信息和编码方案传递给流媒体服务器后端
-
-
-
-            //创建对象
-            VodEncode vodEncode = new VodEncode(encodingScheme,video);
-            //判断文件是否已经存在
-            vodEncode.setoutputName();
-            String outputName = vodEncode.getOutputName();
-            File file = new File(vodServerPath+outputName);
-            if (file.exists()){
+            EncodingSchemeVideo encodingSchemeVideo = new EncodingSchemeVideo(idvt,encodingScheme,video);
+            String isFileExist = vodEncodeMediaServer(encodingSchemeVideo);
+            if(!"404".equals(isFileExist)){
+                System.out.println("不用转码文件已经存在了");
                 videoTaskService.updateVodStatusById(idvt,2);
                 //将admin vodurl写入数据库
-                videoTaskService.updateAdminVodURLById(idvt,vodPath+outputName);
+                videoTaskService.updateAdminVodURLById(idvt,vodPath+isFileExist);
             }else{
-                FutureTask<String> vodTask = new FutureTask<String>(vodEncode);
-                new Thread(vodTask).start();
-                //转码end,查询有没有该文件
-                File newfile = new File(vodServerPath+vodTask.get());
-                if (newfile.exists()){
-                    videoTaskService.updateVodStatusById(idvt,2);
-                    //将admin vodurl写入数据库
-                    videoTaskService.updateAdminVodURLById(idvt,vodPath+outputName);
-                }
+                System.out.println("还没开始转码");
             }
         }
         return "ok";
+    }
+
+    /**
+     * 文件转码完成
+     */
+    @GetMapping("/vodEncodeEnd")
+    public void vodEncodeEnd(int idvt,String outputName) {
+        videoTaskService.updateVodStatusById(idvt,2);
+        //将admin vodurl写入数据库
+        videoTaskService.updateAdminVodURLById(idvt,vodPath+outputName);
+    }
+    /**
+     * 发送idvt和编码信息和视频信息 令流媒体服务器点播转码
+     * 404 或者 outputname
+     */
+    private String vodEncodeMediaServer(EncodingSchemeVideo encodingSchemeVideo){
+        String url = mediaServer+"/vodEncode";
+        ResponseEntity<String> entity = restTemplate.postForEntity(url, encodingSchemeVideo, String.class);
+        System.out.println(entity.getBody());
+        return entity.getBody();
+    }
+    /**
+     * 发送idmerge和编码信息和视频源信息 令流媒体服务器开始直播
+     * 404 或者 outputname
+     */
+    private String pushStreamMediaServer(EncodingSchemeVideo encodingSchemeVideo){
+        String url = mediaServer+"/pushStream";
+        ResponseEntity<String> entity = restTemplate.postForEntity(url, encodingSchemeVideo, String.class);
+        System.out.println(entity.getBody());
+        return entity.getBody();
+    }
+    private void endCameraLiveMediaServer(){
+        String url = mediaServer+"/endCameraLive";
+        ResponseEntity<String> entity = restTemplate.getForEntity(url, String.class);
     }
 }

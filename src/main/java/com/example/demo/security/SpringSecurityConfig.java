@@ -67,7 +67,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         // 允许 登录 注册的 api 的无授权访问，其他需要授权访问
         httpSecurity.authorizeRequests()
                 .antMatchers("/login", "/register","/logout","/deleteByID","/updateTester","/canUsedUsername",
-                        "/insertVideo","/deleteVideoByID","/game/setPara")
+                        "/insertVideo","/deleteVideoByID",
+                        "/videoTask/setLiveIdMerge","/videoTask/vodEncodeEnd","/videoTask/setLiveIdMerge",
+                        "/game/setPara")
                 .permitAll().anyRequest().authenticated();
         // 添加拦截器
         httpSecurity.addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);

@@ -31,7 +31,7 @@ class DemoApplicationTests {
 
 
 
-    private String ffmpegURL = "http://10.112.79.206:8085" ;//后端url
+    private String ffmpegURL = "http://192.168.10.119:8085" ;//后端url
     @Test
     public void test3(){
         //第一种 postForEntity 可以获取响应状态，头部信息等
@@ -40,6 +40,7 @@ class DemoApplicationTests {
         encodingSchemeVideo.setEs(new EncodingScheme());
         ResponseEntity<String> entity = restTemplate.postForEntity(url, encodingSchemeVideo, String.class);
         System.out.println(entity.getBody());
+
     }
 //    @Test
 //    public void testRest(){
