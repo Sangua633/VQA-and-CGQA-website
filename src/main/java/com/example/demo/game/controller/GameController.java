@@ -3,6 +3,7 @@ package com.example.demo.game.controller;
 import com.example.demo.game.entity.Game;
 import com.example.demo.game.service.GameService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,7 +24,7 @@ public class GameController {
         return gameService.queryGameByID(id);
     }
 
-    @GetMapping("/insertGame")
+    @PostMapping("/insertGame")
     public int  addGame(@RequestBody final Game game){
         return gameService.addGame(game);
     }
@@ -39,9 +40,9 @@ public class GameController {
     public int deleteByID(int id){
         return gameService.deleteGameByID(id);
     }
-    @GetMapping("/deleteGameByUsername")
-    public int deleteByID(String gameName){
-        return gameService.deleteGameByGamename(gameName);
+    @GetMapping("/deleteGameByGameName")
+    public int deleteByGameName(String gameName){
+        return gameService.deleteGameByGameName(gameName);
     }
 
 

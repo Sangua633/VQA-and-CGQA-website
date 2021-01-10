@@ -29,12 +29,6 @@ public class GameService {
     }
 
 
-//    public Tester queryTesterById(int id){
-//        Tester tester = testerMapper.queryTesterById(id);
-//        System.out.println("通过id查询到的用户"+tester);
-//        return tester;
-//    }
-
     /**
      * 通过游戏名查询游戏
      * @param gamename 游戏名
@@ -51,7 +45,7 @@ public class GameService {
     public int deleteGameByID(int idgame){
         return gameMapper.deleteGameByID(idgame);
     }
-    public int deleteGameByGamename(String gamename){
+    public int deleteGameByGameName(String gamename){
         return gameMapper.deleteGameByGameName(gamename);
     }
 }

@@ -20,4 +20,5 @@ public class GameEncodingScheme implements Serializable {
     private  String encoding="h264"; //编码方式 h264
     private  int bitRate; //码率  Mbps
     private int isUsed=0;
+    private  int idGame;
 }

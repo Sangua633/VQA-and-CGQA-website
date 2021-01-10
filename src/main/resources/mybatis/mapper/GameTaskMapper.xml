@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.game.mapper.GameTaskMapper">
+    <select id="queryGameTaskList" resultType="GameTask">
+    select * from gameTask
+  </select>
+    <select id="queryGameTaskById" resultType="GameTask">
+        select * from gameTask
+        where idgameTask=#{id}
+    </select>
+    <select id="queryGameTaskByStatus" resultType="GameTask">
+        select * from gameTask
+        where status=#{status}
+    </select>
+
+
+    <insert id="addGameTask" parameterType="GameTask" useGeneratedKeys="true" keyProperty="idgameTask">
+        insert into gameTask (username,idVideoNetwork,idgameEncodingScheme,status,fluency,sharpness,color,delay,
+        assessmentStatus,realWidth,realHeight,realFrameRate,realBitRate_Mbps,realBandWidth_Mbps,realTotalLossPacket,realPacketRecive
+        )
+        values (#{username},#{idVideoNetwork},#{idgameEncodingScheme},#{status},#{fluency},#{sharpness},#{color},#{delay},
+        #{assessmentStatus},#{realWidth},#{realHeight},#{realFrameRate},#{realBitRate_Mbps},#{realBandWidth_Mbps},#{realTotalLossPacket},#{realPacketRecive})
+    </insert>
+
+    <update id="updateGameTask" parameterType="GameTask" >
+        update gameTask
+        set username=#{username},idVideoNetwork=#{idVideoNetwork},idgameEncodingScheme=#{idgameEncodingScheme}
+        where idgameTask=#{idgameTask}
+    </update>
+    <update id="updateGameTaskByRealData" parameterType="GameTask" >
+        update gameTask
+        set  realWidth=#{realWidth},
+            realHeight=#{realHeight},
+            realTotalLossPacket=realTotalLossPacket+#{realTotalLossPacket},
+            realPacketRecive=realPacketRecive+#{realPacketRecive},
+        realFrameRate=(
+        case
+            when realFrameRate=0 then #{realFrameRate}
+            else (realFrameRate+#{realFrameRate})/2
+        end),
+        realBitRate_Mbps=(
+        case
+            when realBitRate_Mbps=0 then #{realBitRate_Mbps}
+            else (realBitRate_Mbps+#{realBitRate_Mbps})/2
+        end),
+        realBandWidth_Mbps=(
+        case
+            when realBandWidth_Mbps=0 then #{realBandWidth_Mbps}
+            else (realBandWidth_Mbps+#{realBandWidth_Mbps})/2
+        end)
+        where idgameTask=#{idgameTask}
+    </update>
+
+
+    <update id="updateStatusById" parameterType="int" >
+        update gameTask
+        set status=#{status}
+        where idgameTask=#{id}
+    </update>
+    <update id="updateAssessmentStatusById" parameterType="int" >
+        update gameTask
+        set assessmentStatus=#{assessmentStatus}
+        where idgameTask=#{id}
+    </update>
+    <update id="updateAssessmentById" parameterType="int">
+        update gameTask
+        set fluency=#{fluency},sharpness=#{sharpness},color=#{color},delay=#{delay}
+        where idgameTask=#{id}
+    </update>
+
+
+    <delete id="deleteGameTaskByID" parameterType="int">
+        delete from gameTask where idgameTask=#{id}
+    </delete>
+
+    <select id="queryStatusByID" resultType="int" parameterType="int">
+        select status from gameTask where idgameTask=#{id}
+    </select>
+    <select id="queryAssessmentStatusByID" resultType="int" parameterType="int">
+        select assessmentStatus from gameTask where idgameTask=#{id}
+    </select>
+
+
+</mapper>

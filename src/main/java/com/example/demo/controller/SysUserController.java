@@ -44,7 +44,6 @@ public class SysUserController {
     @PostMapping(value = "/login")
     public void login(@RequestBody final Tester tester,HttpServletResponse response) throws AuthenticationException {
         System.out.println("××××××××正在登录×××××××");
-        System.out.println("现在是热部署了。。");
         sysUserService.login(tester,response);
     }
 

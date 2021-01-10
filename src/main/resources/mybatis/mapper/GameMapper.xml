@@ -24,4 +24,7 @@
     <delete id="deleteGameByID" parameterType="int">
         delete from game where idgame=#{id}
     </delete>
+    <delete id="deleteGameByGameName" >
+        delete from game where gameName=#{gameName}
+    </delete>
 </mapper>

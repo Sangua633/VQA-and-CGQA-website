@@ -34,7 +34,7 @@ public class GameEncodingSchemeController {
      * @param
      */
     @PostMapping("/insert")
-    public int addES(@RequestBody GameEncodingScheme gameEncodingScheme) throws IOException {
+    public int addES(@RequestBody GameEncodingScheme gameEncodingScheme) {
         System.out.println("××××××正在添加编码方案××××××");
         gameEncodingScheme.setEncoding("h264");
         gameEncodingScheme.setIsUsed(0);
@@ -67,6 +67,16 @@ public class GameEncodingSchemeController {
         System.out.println(id);
         //删除编码方案表中的数据
         gameEncodingSchemeService.deleteEncodingSchemeByID(id);
+    }
+
+    /**
+     * 根据编码方案id查询该方案是否被游戏任务用过
+     * @param id 编码方案id
+     * @return 被用过的次数
+     */
+    @GetMapping("/queryIsUsed")
+    public int queryIsUsed(int id){
+        return gameEncodingSchemeService.queryEncodingSchemeById(id).getIsUsed();
     }
 
 }
