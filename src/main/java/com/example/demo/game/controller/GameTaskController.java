@@ -1,5 +1,6 @@
 package com.example.demo.game.controller;
 
+import com.example.demo.game.entity.GameESNetworkTester;
 import com.example.demo.game.entity.GameEncodingScheme;
 import com.example.demo.game.entity.GameTask;
 import com.example.demo.game.service.GameEncodingSchemeService;
@@ -35,16 +36,27 @@ public class GameTaskController {
 
     /**
      * 新增游戏任务
+     * 游戏方案、网络、测试人员是数组
      * 注意要把游戏方案置isused增1
-     * @param gameTask 游戏任务
+     * @param  gameESNetworkTester 游戏方案、网络、测试人员是数组
      * @return ok
      */
     @PostMapping("/insert")
-    public String addGameTask(@RequestBody  GameTask gameTask){
+    public String addGameTask(@RequestBody GameESNetworkTester gameESNetworkTester){
         System.out.println("*****新增的游戏任务*****");
-        System.out.println(gameTask);
-        gameTaskService.addGameTask(gameTask);
-        gameEncodingSchemeService.updateIsUsedByID(gameTask.getIdgameEncodingScheme(),1);
+        List<String> usernames = gameESNetworkTester.getUsernames();
+        List<Integer> idVideoNetworks = gameESNetworkTester.getIdVideoNetworks();
+        List<Integer> idgameEncodingSchemes = gameESNetworkTester.getIdgameEncodingSchemes();
+        for(String username:usernames){
+            for(int idVideoNetwork: idVideoNetworks){
+                for(int idgameEncodingScheme:idgameEncodingSchemes){
+                    GameTask gameTask = new GameTask(username,idVideoNetwork,idgameEncodingScheme);
+                    gameTaskService.addGameTask(gameTask);
+                    gameEncodingSchemeService.updateIsUsedByID(idgameEncodingScheme,1);
+                    System.out.println(gameTask);
+                }
+            }
+        }
         return "ok";
     }
 
@@ -79,7 +91,7 @@ public class GameTaskController {
 
     /**
      * 将当前游戏任务的status置为1
-     * 把任务assessment的status置为1 表示正在进行任务评价
+     *
      * @param id 游戏任务的id
      * @return ok
      */
@@ -87,13 +99,14 @@ public class GameTaskController {
     public String gameTaskAdminPlay(int id){
         //将当前游戏任务的status置为1
         gameTaskService.updateStatusById(id,1);
-        gameTaskService.updateAssessmentStatusById(id,1);
+
         playingGameTaskID = id;
         return "ok";
     }
 
     /**
      * 判断当前用户是否有云游戏测试任务
+     * 如果有，把任务assessment的status置为1 表示正在进行任务评价
      * @param username 测试人员的姓名
      * @return 含有状态码、message的map
      */
@@ -104,6 +117,7 @@ public class GameTaskController {
         GameTask gameTask = gameTaskService.queryGameTaskByStatus(1);
         if(username.equals(gameTask.getUsername())){
             System.out.println(username+"有测试任务");
+            gameTaskService.updateAssessmentStatusById(gameTask.getIdgameTask(),1);
             map.put("status",200);
             map.put("message","当前有游戏任务");
         }else{

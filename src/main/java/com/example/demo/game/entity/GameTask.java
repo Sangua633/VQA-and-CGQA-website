@@ -31,5 +31,10 @@ public class GameTask implements Serializable {
     private int realBandWidth_Mbps; //Mbps 带宽速率 平均 相加求平均
     private int realTotalLossPacket; //截至到此可的丢包数量 累加
     private int realPacketRecive;  //截至到此可的接收的包数量 累加
+    public GameTask(String username,int idVideoNetwork, int idgameEncodingScheme){
+        this.username = username;
+        this.idgameEncodingScheme= idgameEncodingScheme;
+        this.idVideoNetwork = idVideoNetwork;
+    }
 
 }
