@@ -8,6 +8,7 @@ import com.example.demo.game.service.GameTaskService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -167,6 +168,20 @@ public class GameTaskController {
         return "ok";
 
     }
+
+    /**
+     * 追加时间戳
+     * @param timestamp 时间
+     * @return ok
+     */
+    @GetMapping("/updateTimestamp")
+    public String updateTime(String timestamp){
+        System.out.println(playingGameTaskID);
+        gameTaskService.updateTimestampById(playingGameTaskID,timestamp);
+        return "ok";
+    }
+
+
     /**
      * 给云游戏服务器返回正在执行的游戏任务的编码方案
      * @return 编码方案
@@ -181,5 +196,18 @@ public class GameTaskController {
             return gameEncodingScheme;
         }
         return null;
+    }
+
+    @GetMapping("/startUpGame")
+    public String startUpGame(String gameName) throws IOException {
+        String  command = "cmd.exe /c start D:/work/program/5gvideowebcode/gametest/gametest/"+gameName+".exe";
+        Runtime.getRuntime().exec(command);
+        return "ok";
+    }
+    @GetMapping("endGame")
+    public String endGame(String gameName) throws IOException {
+        String commmand = "tskill "+ gameName;
+        Runtime.getRuntime().exec(commmand);
+        return "ok";
     }
 }

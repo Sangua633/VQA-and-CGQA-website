@@ -45,6 +45,10 @@ public class GameTaskService {
     public void updateAssessmentById(int id,int fluency,int sharpness,int color,int delay){
         gameTaskMapper.updateAssessmentById(id,fluency,sharpness,color,delay);
     }
+    public void updateTimestampById(int id,String timestamp){
+        System.out.println(timestamp);
+        gameTaskMapper.updateTimestampById(id,timestamp+",");
+    }
 
     public int deleteGameTaskByID(int id){
         return  gameTaskMapper.deleteGameTaskByID(id);

@@ -21,6 +21,8 @@ public interface GameTaskMapper {
     void updateStatusById(int id,int status);
     void updateAssessmentStatusById(int id,int assessmentStatus);
     void updateAssessmentById(int id,int fluency,int sharpness,int color,int delay);
+    void updateTimestampById(int id, String timestamp);
+
     int deleteGameTaskByID(int id);
 
 

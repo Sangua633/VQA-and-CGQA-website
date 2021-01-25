@@ -69,6 +69,11 @@
         set fluency=#{fluency},sharpness=#{sharpness},color=#{color},delay=#{delay}
         where idgameTask=#{id}
     </update>
+    <update id="updateTimestampById" >
+        update gameTask
+        set timestamp=CONCAT(timestamp ,#{timestamp})
+        where idgameTask=#{id}
+    </update>
 
 
     <delete id="deleteGameTaskByID" parameterType="int">
