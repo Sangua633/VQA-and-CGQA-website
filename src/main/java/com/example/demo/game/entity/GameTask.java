@@ -18,10 +18,11 @@ public class GameTask implements Serializable {
     private int idgameEncodingScheme;
     private int status;
     //评价
-    private int fluency;
-    private int sharpness;
-    private int color;
-    private int delay;
+    private int screenFluency;
+    private int screenSharpness;
+    private int screenColor;
+    private int gameDelay;
+    private int gameLag;
     private int assessmentStatus=0;
     //真实参数
     private int realWidth;//宽度

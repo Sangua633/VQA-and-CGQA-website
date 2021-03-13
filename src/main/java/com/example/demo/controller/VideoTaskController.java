@@ -7,6 +7,7 @@ import com.example.demo.utils.ffmpeg.LivePushFile;
 import com.example.demo.utils.ffmpeg.VodEncode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -47,15 +48,14 @@ public class VideoTaskController {
      * @param videoTaskNetworkTester
      */
     @PostMapping("/insert")
+    @Transactional
     public void addVideoTask(@RequestBody VideoTaskNetworkTester videoTaskNetworkTester){
         System.out.println("×××××××××××开始新建任务×××××××");
         List<Integer> idESs = videoTaskNetworkTester.getIdESs(); //编码方案的id数组
         List<Integer> idVideoNetworks = videoTaskNetworkTester.getIdVideoNetworks(); //网络方案的id数组
         List<String> usernames =videoTaskNetworkTester.getUsernames();//测试人员的用户名数组
         String streamType = videoTaskNetworkTester.getStreamType(); //任务类型：直播、点播
-        System.out.println("编码方案的ids "+idESs);
-        System.out.println("网络编码方案的ids "+ idVideoNetworks);
-        System.out.println("用户ids "+ usernames);
+
         int idmergeNum=videoTaskService.countIdMerge();
         System.out.println("目前idmerge的个数"+idmergeNum);
         int idmerge=0;
@@ -74,7 +74,7 @@ public class VideoTaskController {
                     for(String username:usernames){
                         videoTask_testerService.insert(new VideoTask_Tester(username,idvt,0,0));
                         //将用户的isUsed+1
-                        testerService.updateIsUsedByID(username,1);
+                        testerService.updateIsUsedByUsername(username,1);
                     }
                     //将videoes的isUsed+1
                     video_esService.updateIsUsedByID(idVideoES,1);
@@ -157,27 +157,18 @@ public class VideoTaskController {
         List<VideoTask_Tester> videoTask_testers = videoTask_testerService.getVideoTaskByUsername(username);
         List<Map<String,Object> > ret = new ArrayList<Map<String,Object>>();
         for(VideoTask_Tester videoTask_tester:videoTask_testers){
+            if(videoTask_tester.getAssessmentStatus()!=1) continue; //评价状态为1才是需要执行的任务，状态为2的表示评价结束
             Map<String,Object> map = new HashMap<>();
             int idvt = videoTask_tester.getIdVideoTask();
             System.out.println("idvideotask "+idvt);
-            map.put("id",videoTask_tester.getIdVideoTask_Tester());
             VideoTask videoTask = videoTaskService.queryTaskByID(idvt);
+
             int vodStatus = videoTask.getVodStatus();
-            if(vodStatus==0){
-                map.put("status",404);
-                map.put("message","该任务还未转码，请联系管理员");
-            }else if(vodStatus==1){
-                map.put("status",404);
-                map.put("message","该任务正在转码，请联系管理员");
-            }else{
+            if(vodStatus==2 && videoTask.getVodURL()!=null){
                 System.out.println("点播url"+videoTask.getVodURL());
-                if(videoTask.getVodURL()==null){
-                    map.put("status",404);
-                    map.put("message","管理员还未开始此任务，请联系管理员！");
-                }else{
-                    map.put("status",200);
-                    map.put("message",videoTask.getVodURL());
-                }
+                map.put("id",videoTask_tester.getIdVideoTask_Tester());
+                map.put("status",200);
+                map.put("message",videoTask.getVodURL());
             }
             ret.add(map);
         }
@@ -189,6 +180,7 @@ public class VideoTaskController {
      * 根据idmerge
      */
     @GetMapping("/deleteTask")
+    @Transactional
     public void deleteTask(int idMerge){
         List<Integer> idvts = videoTaskService.queryIdTaskByIdMerge(idMerge);
         for(Integer idvt:idvts){
@@ -197,7 +189,7 @@ public class VideoTaskController {
             //查询到用户名
             List<String> usernames = videoTask_testerService.queryUsernameByIdvt(idvt);
             for(String username:usernames){
-                testerService.updateIsUsedByID(username,-1);
+                testerService.updateIsUsedByUsername(username,-1);
             }
             //删除videotask
             videoTaskService.deleteByID(idvt);
@@ -231,7 +223,8 @@ public class VideoTaskController {
             //将用户的直播状态变为2
             videoTask_testerService.updateLiveStatusByID(id,2);
         }
-        //将任务状态变为2
+        //将任务评价状态变为2
+        videoTask_testerService.updateAssessmentStatusByID(id,2);
         //videoTaskService.updateTaskStatusById(idvt,2);
     }
 
@@ -243,6 +236,7 @@ public class VideoTaskController {
      * @param idMerge idmerge
      */
     @GetMapping("/adminPlay")
+    @Transactional
     public String adminPlay(int idMerge) throws ExecutionException, InterruptedException {
         //通过idmerge查询idvideotask
         List<Integer> idvts = videoTaskService.queryIdTaskByIdMerge(idMerge);

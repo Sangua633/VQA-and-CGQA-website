@@ -5,6 +5,9 @@ import com.example.demo.game.entity.GameEncodingScheme;
 import com.example.demo.game.entity.GameTask;
 import com.example.demo.game.service.GameEncodingSchemeService;
 import com.example.demo.game.service.GameTaskService;
+import com.example.demo.service.TesterService;
+import com.example.demo.service.VideoNetworkService;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -18,6 +21,10 @@ import java.util.Map;
 public class GameTaskController {
     @Resource
     private GameTaskService gameTaskService;
+    @Resource
+    private VideoNetworkService videoNetworkService;
+    @Resource
+    private TesterService testerService;
     @Resource
     private GameEncodingSchemeService gameEncodingSchemeService;
     private int playingGameTaskID = -1; //当前正在执行的游戏任务id
@@ -43,6 +50,7 @@ public class GameTaskController {
      * @return ok
      */
     @PostMapping("/insert")
+    @Transactional
     public String addGameTask(@RequestBody GameESNetworkTester gameESNetworkTester){
         System.out.println("*****新增的游戏任务*****");
         List<String> usernames = gameESNetworkTester.getUsernames();
@@ -54,6 +62,8 @@ public class GameTaskController {
                     GameTask gameTask = new GameTask(username,idVideoNetwork,idgameEncodingScheme);
                     gameTaskService.addGameTask(gameTask);
                     gameEncodingSchemeService.updateIsUsedByID(idgameEncodingScheme,1);
+                    videoNetworkService.updateIsUsedByID(idVideoNetwork,1);
+                    testerService.updateIsUsedByUsername(username,1);
                     System.out.println(gameTask);
                 }
             }
@@ -62,7 +72,7 @@ public class GameTaskController {
     }
 
     /**
-     * 更新游戏方案
+     * 更新游戏任务
      * @param gameTask 游戏任务
      * @return
      */
@@ -80,12 +90,15 @@ public class GameTaskController {
      * @return
      */
     @GetMapping("/delete")
+    @Transactional
     public String deleteGameTask(int id){
         System.out.println("******删除游戏任务****");
         GameTask gameTask = gameTaskService.queryGameTaskById(id);
         gameTaskService.deleteGameTaskByID(id);
         int idGameEncodingScheme = gameTask.getIdgameEncodingScheme();
         gameEncodingSchemeService.updateIsUsedByID(idGameEncodingScheme,-1);
+        videoNetworkService.updateIsUsedByID(gameTask.getIdVideoNetwork(),-1);
+        testerService.updateIsUsedByUsername(gameTask.getUsername(),-1);
         return "ok";
     }
 
@@ -97,12 +110,21 @@ public class GameTaskController {
      * @return ok
      */
     @GetMapping("/adminPlay")
-    public String gameTaskAdminPlay(int id){
-        //将当前游戏任务的status置为1
-        gameTaskService.updateStatusById(id,1);
+    @Transactional
+    public Map<String,Object> gameTaskAdminPlay(int id){
+        Map<String,Object> map = new HashMap<>();
+        if(playingGameTaskID!=-1){
+            map.put("status",404);
+            map.put("message","目前已经有正在执行任务！");
+        }else{
+            //将当前游戏任务的status置为1
+            gameTaskService.updateStatusById(id,1);
+            playingGameTaskID = id;
+            map.put("status",200);
+            map.put("message","该任务开始执行了！");
+        }
 
-        playingGameTaskID = id;
-        return "ok";
+        return map;
     }
 
     /**
@@ -115,17 +137,24 @@ public class GameTaskController {
     public Map<String,Object>  haveGameTask(String username){
         System.out.println("*****正在查询测试人员有无游戏测试任务*****");
         Map<String,Object> map = new HashMap<>();
-        GameTask gameTask = gameTaskService.queryGameTaskByStatus(1);
-        if(username.equals(gameTask.getUsername())){
-            System.out.println(username+"有测试任务");
-            gameTaskService.updateAssessmentStatusById(gameTask.getIdgameTask(),1);
-            map.put("status",200);
-            map.put("message","当前有游戏任务");
-        }else{
-            System.out.println(username+"没有测试任务");
-            map.put("status",404);
-            map.put("message","当前没有测试任务");
 
+        GameTask gameTask = gameTaskService.queryGameTaskByStatus(1);
+        if(gameTask==null ){
+            System.out.println("当前没有正在执行的任务");
+            map.put("status",404);
+            map.put("message","当前没有正在执行的任务");
+        }else{
+            if(username.equals(gameTask.getUsername())){
+                System.out.println(username+"有测试任务");
+                gameTaskService.updateAssessmentStatusById(gameTask.getIdgameTask(),1);
+                map.put("status",200);
+                map.put("message","当前有游戏任务");
+            }else{
+                System.out.println(username+"没有测试任务");
+                map.put("status",404);
+                map.put("message","该用户当前没有测试任务");
+
+            }
         }
         return map;
     }
@@ -133,18 +162,16 @@ public class GameTaskController {
     /**
      * 更新游戏任务的评价
      * 将游戏评价状态置为2
-     * @param fluency 流畅度
-     * @param sharpness 清晰度
-     * @param color 色彩
-     * @param delay 延迟
      * @return ok
      */
     @GetMapping("/assessment")
-    public String updateAssessment(int fluency,int sharpness,int color,int delay){
-        if(playingGameTaskID!=-1){
-            gameTaskService.updateAssessmentById(playingGameTaskID,fluency,sharpness,color,delay);
-            gameTaskService.updateAssessmentStatusById(playingGameTaskID,2);
-            gameTaskService.updateStatusById(playingGameTaskID,2);
+    @Transactional
+    public String updateAssessment(int screenFluency,int screenSharpness,int screenColor,int gameDelay,int gameLag){
+        GameTask gameTask = gameTaskService.queryGameTaskByStatus(1);
+        if(playingGameTaskID!=-1 ||  gameTask!=null){
+            gameTaskService.updateAssessmentById(gameTask.getIdgameTask(),screenFluency,screenSharpness,screenColor,gameDelay,gameLag);
+            gameTaskService.updateAssessmentStatusById(gameTask.getIdgameTask(),2);
+            gameTaskService.updateStatusById(gameTask.getIdgameTask(),2);
             playingGameTaskID=-1;
             return "ok";
         }else{
@@ -199,12 +226,15 @@ public class GameTaskController {
     }
 
     @GetMapping("/startUpGame")
-    public String startUpGame(String gameName) throws IOException {
-        String  command = "cmd.exe /c start D:/work/program/5gvideowebcode/gametest/gametest/"+gameName+".exe";
-        Runtime.getRuntime().exec(command);
+    public String startUpGame(String gameName)  throws IOException{
+
+            String  command = "cmd.exe /c start D:/work/program/5gvideowebcode/gametest/gametest/"+gameName+".exe";
+            Runtime.getRuntime().exec(command);
+
+
         return "ok";
     }
-    @GetMapping("endGame")
+    @GetMapping("/endGame")
     public String endGame(String gameName) throws IOException {
         String commmand = "tskill "+ gameName;
         Runtime.getRuntime().exec(commmand);

@@ -66,7 +66,7 @@
     </update>
     <update id="updateAssessmentById" parameterType="int">
         update gameTask
-        set fluency=#{fluency},sharpness=#{sharpness},color=#{color},delay=#{delay}
+        set screenFluency=#{screenFluency},screenSharpness=#{screenSharpness},screenColor=#{screenColor},gameDelay=#{gameDelay},gameLag=#{gameLag}
         where idgameTask=#{id}
     </update>
     <update id="updateTimestampById" >

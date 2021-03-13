@@ -20,7 +20,7 @@ public interface GameTaskMapper {
     int updateGameTaskByRealData(GameTask gameTask);
     void updateStatusById(int id,int status);
     void updateAssessmentStatusById(int id,int assessmentStatus);
-    void updateAssessmentById(int id,int fluency,int sharpness,int color,int delay);
+    void updateAssessmentById(int id,int screenFluency,int screenSharpness,int screenColor,int gameDelay,int gameLag);
     void updateTimestampById(int id, String timestamp);
 
     int deleteGameTaskByID(int id);

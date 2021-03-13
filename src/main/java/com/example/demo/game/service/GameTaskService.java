@@ -42,8 +42,8 @@ public class GameTaskService {
     public void updateAssessmentStatusById(int id,int assessmentStatus){
         gameTaskMapper.updateAssessmentStatusById(id,assessmentStatus);
     }
-    public void updateAssessmentById(int id,int fluency,int sharpness,int color,int delay){
-        gameTaskMapper.updateAssessmentById(id,fluency,sharpness,color,delay);
+    public void updateAssessmentById(int id,int screenFluency,int screenSharpness,int screenColor,int gameDelay,int gameLag){
+        gameTaskMapper.updateAssessmentById(id,screenFluency,screenSharpness,screenColor,gameDelay,gameLag);
     }
     public void updateTimestampById(int id,String timestamp){
         System.out.println(timestamp);

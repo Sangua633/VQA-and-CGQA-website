@@ -60,7 +60,7 @@ public class TesterService {
     public int updateTester(Tester tester) {
         return testerMapper.updateTester(tester);
     }
-    public void updateIsUsedByID(String username,int isUsedStatus){
+    public void updateIsUsedByUsername(String username,int isUsedStatus){
         testerMapper.updateIsUsedByUsername(username,isUsedStatus);
     }
 }
