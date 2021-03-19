@@ -13,7 +13,6 @@ public class VideoNetwork implements Serializable {
     private int  idvideoNetwork;
     private String bandwidth;
     private String packetloss;
-    private int lossCorrelation;
     private  String delay;
     private  String delayJitter;
     public  int isUsed=0;

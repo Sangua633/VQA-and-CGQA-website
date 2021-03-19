@@ -7,6 +7,7 @@ import com.example.demo.game.service.GameEncodingSchemeService;
 import com.example.demo.game.service.GameTaskService;
 import com.example.demo.service.TesterService;
 import com.example.demo.service.VideoNetworkService;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -102,6 +103,12 @@ public class GameTaskController {
         return "ok";
     }
 
+
+    @GetMapping("/adminStop")
+    public Boolean adminStop(int id){
+
+        return false;
+    }
 
     /**
      * 将当前游戏任务的status置为1

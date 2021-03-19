@@ -44,7 +44,7 @@ public class VideoNetworkService {
      */
     public VideoNetwork getNetworkConfig(int id){
         if(id<0){
-            return new VideoNetwork(0,0+"",0+"",0,0+"",0+"",0);
+            return new VideoNetwork(0,0+"",0+"",0+"",0+"",0);
         }else{
             return videoNetworkMapper.queryNetwork(id);
         }
@@ -101,7 +101,7 @@ public class VideoNetworkService {
         params2.add("txtReorder1",0+""); //包重排序率，按概率将包的顺序打乱
         params2.add("txtCorrupt1",0+""); //错包率 按概率产生噪音，即格式错误的包
         params2.add("txtDelayJitter1", videoNetwork.getDelayJitter()); //抖动
-        params2.add("txtLossCorrelation1",videoNetwork.getLossCorrelation()+""); //丢包相关性，用来设置这个包的延时时间和上一个包的时间的相关度
+        params2.add("txtLossCorrelation1",""); //丢包相关性，用来设置这个包的延时时间和上一个包的时间的相关度
         params2.add("txtDupCorrelation1",0+""); //重包相关性
         params2.add("txtReorderCorrelation1",0+""); //重排序相关性
         params2.add("txtDelayCorrelation1",0+""); //延时相关性

@@ -31,6 +31,9 @@
     <select id="getDistinctIdVideoTask" resultType="int">
         select DISTINCT idVideoTask from VideoTask_Tester
     </select>
+    <select id="queryDistinctIdvtByAssessmentStatus" resultType="int">
+        select DISTINCT idVideoTask from VideoTask_Tester where assessmentStatus=#{assessmentStatus}
+    </select>
 
     <update id="updateAssessmentByID">
         update VideoTask_Tester  set sharpness=#{sharpness},fluency=#{fluency},color=#{color},assessmentStatus=#{assessmentStatus} where idVideoTask_Tester=#{idVideoTask_Tester}

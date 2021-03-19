@@ -11,7 +11,7 @@
     </select>
 
     <insert id="addNetwork" parameterType="VideoNetwork" useGeneratedKeys="true" keyProperty="idvideoNetwork">
-            insert into videoNetwork (bandwidth,packetloss,lossCorrelation,delay,delayJitter,isUsed) values (#{bandwidth},#{packetloss},#{lossCorrelation},#{delay},#{delayJitter},#{isUsed})
+            insert into videoNetwork (bandwidth,packetloss,delay,delayJitter,isUsed) values (#{bandwidth},#{packetloss},#{delay},#{delayJitter},#{isUsed})
     </insert>
 
     <delete id="deleteNetworkByID" parameterType="int" >
@@ -20,7 +20,7 @@
 
 
     <update id="updateNetwork" parameterType="VideoNetwork" useGeneratedKeys="true" keyProperty="idvideoNetwork">
-        update videoNetwork set bandwidth=#{bandwidth},packetloss=#{packetloss},lossCorrelation=#{lossCorrelation},delay=#{delay},delayJitter=#{delayJitter},isUsed=#{isUsed} where idvideoNetwork=#{idvideoNetwork}
+        update videoNetwork set bandwidth=#{bandwidth},packetloss=#{packetloss},delay=#{delay},delayJitter=#{delayJitter},isUsed=#{isUsed} where idvideoNetwork=#{idvideoNetwork}
     </update>
     <update id="updateIsUsedByID" parameterType="int">
         update videoNetwork set isUsed=isUsed+#{isUsedStatus} where idvideoNetwork=#{id}

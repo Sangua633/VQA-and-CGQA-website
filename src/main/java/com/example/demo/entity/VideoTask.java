@@ -15,6 +15,7 @@ public class VideoTask implements Serializable {
     private int idVideoES; //视频源和编码方案的id
     private int idVideoNetwork; //网络编码方案的id
     private  String vodURL; //被编码后的点播文件的url
+    private String coverPath; //封面路径
     private  String streamType; //流的类型：点播、直播、摄像头直播
     private  String liveURL; //直播的url
     private  int vodStatus; //点播文件的状态：未开始转码、正在转码、转码完成

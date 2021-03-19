@@ -21,6 +21,7 @@ public interface  VideoTask_TesterMapper {
     List<String> queryUsernameByIdvt(int id);
     List<Integer> queryIDByIdvt(int id);
     List<Integer> queryAssessmentStatusByIdvt(int id);
+    List<Integer> queryDistinctIdvtByAssessmentStatus(int assessmentStatus);
     VideoTask_Tester queryByID(int id);
     List<VideoTask_Tester> queryTask();
     List<Integer> queryIDByUsernameLive(String username,int liveStatus);

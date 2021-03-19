@@ -17,10 +17,10 @@
 
 
     <insert id="addGameTask" parameterType="GameTask" useGeneratedKeys="true" keyProperty="idgameTask">
-        insert into gameTask (username,idVideoNetwork,idgameEncodingScheme,status,fluency,sharpness,color,delay,
+        insert into gameTask (username,idVideoNetwork,idgameEncodingScheme,status,screenFluency,screenSharpness,screenColor,gameDelay,gameLag,
         assessmentStatus,realWidth,realHeight,realFrameRate,realBitRate_Mbps,realBandWidth_Mbps,realTotalLossPacket,realPacketRecive
         )
-        values (#{username},#{idVideoNetwork},#{idgameEncodingScheme},#{status},#{fluency},#{sharpness},#{color},#{delay},
+        values (#{username},#{idVideoNetwork},#{idgameEncodingScheme},#{status},#{screenFluency},#{screenSharpness},#{screenColor},#{gameDelay},#{gameLag},
         #{assessmentStatus},#{realWidth},#{realHeight},#{realFrameRate},#{realBitRate_Mbps},#{realBandWidth_Mbps},#{realTotalLossPacket},#{realPacketRecive})
     </insert>
 

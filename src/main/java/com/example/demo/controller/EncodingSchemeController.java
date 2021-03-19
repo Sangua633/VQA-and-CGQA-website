@@ -55,6 +55,7 @@ public class EncodingSchemeController {
             videoJointES2.setEncoding(es.getEncoding());
             videoJointES2.setFrameRate(es.getFrameRate());
             videoJointES2.setEncodingType(es.getEncodingType());
+            videoJointES2.setIsUsed(es.getIsUsed());
             videoJointES2.setIdEncodingScheme(ides);
             videoJointES2s.add(videoJointES2);
         }

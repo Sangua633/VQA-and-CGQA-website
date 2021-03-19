@@ -68,7 +68,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         httpSecurity.authorizeRequests()
                 .antMatchers("/login", "/register","/logout","/deleteByID","/updateTester","/canUsedUsername",
                         "/insertVideo","/deleteVideoByID",
-                        "/videoTask/setLiveIdMerge","/videoTask/vodEncodeEnd","/videoTask/setLiveIdMerge",
+                        "/videoTask/setLiveIdMerge","/videoTask/vodEncodeEnd","/videoTask/setLiveIdMerge","/videoTask/setM3U8",
                         "/game/setPara")
                 .permitAll().anyRequest().authenticated();
         // 添加拦截器

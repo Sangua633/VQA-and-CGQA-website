@@ -37,6 +37,9 @@ public class VideoTaskService {
     public void updateVodURLById(int id,String vodURL){videoTaskMapper.updateVodURLById(id,vodURL); }
     public void updateLiveURLById(int id,String liveURL){videoTaskMapper.updateLiveURLById(id,liveURL); }
     public void updateAdminVodURLById(int id,String adminVodURL){videoTaskMapper.updateAdminVodURLById(id,adminVodURL); }
+    public void updateCoverPathById(int id,String coverPath){
+        videoTaskMapper.updateCoverPathById(id,coverPath);
+    }
     public void updateTaskStatusById(int id,int status){
         videoTaskMapper.updateTaskStatusById(id,status);
     }

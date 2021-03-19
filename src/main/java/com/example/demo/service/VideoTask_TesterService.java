@@ -28,6 +28,9 @@ public class VideoTask_TesterService {
     public List<VideoTask_Tester> getVideoTaskByUsername(String username){
         return videoTask_testerMapper.queryVideoTaskByUsername(username);
     }
+    public List<Integer> queryDistinctIdvtByAssessmentStatus(int assessmentStatus){
+        return videoTask_testerMapper.queryDistinctIdvtByAssessmentStatus(assessmentStatus);
+    }
 
     public List<VideoTask_Tester> queryTask(){
         return videoTask_testerMapper.queryTask();

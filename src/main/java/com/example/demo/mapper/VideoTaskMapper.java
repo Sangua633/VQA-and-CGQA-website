@@ -17,6 +17,7 @@ public interface VideoTaskMapper {
     void updateVodURLById(int idVideoTask,String vodURL);
     void updateLiveURLById(int idVideoTask,String liveURL);
     void updateAdminVodURLById(int idVideoTask,String adminVodURL);
+    void updateCoverPathById(int idVideoTask,String coverPath);
     void updateTaskStatusById(int idVideoTask,int taskStatus);
     int countIdMerge();
     int getMaxIdMerge();

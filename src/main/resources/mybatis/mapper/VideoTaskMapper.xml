@@ -45,6 +45,9 @@
     <update id="updateAdminVodURLById" >
         update VideoTask set adminVodURL=#{adminVodURL} where idVideoTask=#{idVideoTask}
     </update>
+    <update id="updateCoverPathById">
+        update VideoTask set coverPath=#{coverPath} where  idVideoTask=#{idVideoTask}
+    </update>
     <update id="updateTaskStatusById">
         update VideoTask set taskStatus=#{taskStatus} where idVideoTask=#{idVideoTask}
     </update>
