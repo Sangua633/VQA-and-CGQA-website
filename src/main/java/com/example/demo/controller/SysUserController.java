@@ -5,6 +5,7 @@ import com.example.demo.PermissionResponse;
 import com.example.demo.entity.Tester;
 import com.example.demo.security.GetToken;
 import com.example.demo.service.SysUserService;
+import com.example.demo.service.TesterService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,8 @@ public class SysUserController {
 
     @Resource
     private SysUserService sysUserService;
+    @Resource
+    private  TesterService testerService;
     @Resource
     GetToken getToken;
 
@@ -75,7 +78,11 @@ public class SysUserController {
         List<String> roles = new ArrayList<>();
         roles.add(tester.getPermission());
         System.out.println("×××××××getinfo结束××××××××");
-        return new PermissionResponse(token, roles,tester.getUsername());
+        Tester tester1 = testerService.queryTesterByUsername(tester.getUsername());
+        String fullname = "";
+        if (tester1!=null)
+            fullname = tester1.getFullname();
+        return new PermissionResponse(token, roles,tester.getUsername(),fullname);
     }
 
     /**

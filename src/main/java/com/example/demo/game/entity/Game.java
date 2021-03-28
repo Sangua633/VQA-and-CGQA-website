@@ -16,4 +16,5 @@ public class Game  implements Serializable {
     private  String gameName;
     private  String gameType;
     private  String cover;
+    private String gamePath;
 }

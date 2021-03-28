@@ -47,6 +47,9 @@ public class VideoTask_TesterService {
         int idvt = videoTask_testerMapper.queryByID(id).getIdVideoTask();
         return idvt;
     }
+    public VideoTask_Tester queryByID(int id){
+        return videoTask_testerMapper.queryByID(id);
+    }
 
 
     /**

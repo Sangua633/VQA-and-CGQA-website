@@ -4,6 +4,7 @@ package com.example.demo.controller;
 import com.example.demo.entity.Tester;
 import com.example.demo.entity.VideoNetwork;
 import com.example.demo.entity.VideoTask;
+import com.example.demo.game.controller.GameTaskController;
 import com.example.demo.service.VideoNetworkService;
 import com.example.demo.service.VideoTaskService;
 import org.springframework.web.bind.annotation.*;
@@ -51,6 +52,7 @@ public class VideoNetworkController {
     public void reset(){
         videoNetworkService.setNetworkConfig(-1);
         VideoTaskController.setCurrentNetworkId(-1);
+        GameTaskController.setCurrentNetworkId(-1);
     }
 
 

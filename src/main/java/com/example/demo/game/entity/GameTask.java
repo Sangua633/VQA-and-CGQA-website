@@ -25,13 +25,13 @@ public class GameTask implements Serializable {
     private int gameLag;
     private int assessmentStatus=0;
     //真实参数
-    private int realWidth;//宽度
-    private int realHeight;//高度
-    private int realFrameRate;// 真实帧率 当前时刻的帧率 相加求平均
-    private int realBitRate_Mbps; //Mbps 码率 当前时刻的码率 相加求平均
-    private int realBandWidth_Mbps; //Mbps 带宽速率 平均 相加求平均
-    private int realTotalLossPacket; //截至到此可的丢包数量 累加
-    private int realPacketRecive;  //截至到此可的接收的包数量 累加
+    private String realWidth;//宽度
+    private String realHeight;//高度
+    private String realFrameRate;// 真实帧率 当前时刻的帧率 相加求平均
+    private String realBitRate_Mbps; //Mbps 码率 当前时刻的码率 相加求平均
+    private String realTotalLossPacket; //截至到此可的丢包数量
+    private String realPacketRecive; //截至到此可的丢包数量
+    private String realBytesRecive;  //截至到此可的接收的包数量
     private String timestamp="";
     public GameTask(String username,int idVideoNetwork, int idgameEncodingScheme){
         this.username = username;

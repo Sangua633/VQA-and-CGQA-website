@@ -69,7 +69,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/login", "/register","/logout","/deleteByID","/updateTester","/canUsedUsername",
                         "/insertVideo","/deleteVideoByID",
                         "/videoTask/setLiveIdMerge","/videoTask/vodEncodeEnd","/videoTask/setLiveIdMerge","/videoTask/setM3U8",
-                        "/game/setPara")
+                        "/game/setPara","/game/updateRealData","/game/updateTimestamp")
                 .permitAll().anyRequest().authenticated();
         // 添加拦截器
         httpSecurity.addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);

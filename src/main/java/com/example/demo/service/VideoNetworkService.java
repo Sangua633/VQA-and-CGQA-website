@@ -20,7 +20,7 @@ public class VideoNetworkService {
     private RestTemplate restTemplate;
     @Resource
     private VideoNetworkMapper videoNetworkMapper;
-    private  final String WANemURL = "http://10.112.65.6/WANem/index-advanced.php";
+    private  final String WANemURL = "http://192.168.3.8/WANem/index-advanced.php";
     /**
      * 返回所有的网络配置
      * @return

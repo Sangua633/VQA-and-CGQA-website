@@ -1,15 +1,22 @@
 package com.example.demo.game.controller;
 
+import com.example.demo.entity.VideoNetwork;
+import com.example.demo.entity.VideoTask;
+import com.example.demo.game.entity.Game;
 import com.example.demo.game.entity.GameESNetworkTester;
 import com.example.demo.game.entity.GameEncodingScheme;
 import com.example.demo.game.entity.GameTask;
 import com.example.demo.game.service.GameEncodingSchemeService;
+import com.example.demo.game.service.GameService;
 import com.example.demo.game.service.GameTaskService;
 import com.example.demo.service.TesterService;
 import com.example.demo.service.VideoNetworkService;
 import com.sun.org.apache.xpath.internal.operations.Bool;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -23,12 +30,23 @@ public class GameTaskController {
     @Resource
     private GameTaskService gameTaskService;
     @Resource
+    private GameService gameService;
+    @Resource
     private VideoNetworkService videoNetworkService;
     @Resource
     private TesterService testerService;
     @Resource
     private GameEncodingSchemeService gameEncodingSchemeService;
     private int playingGameTaskID = -1; //当前正在执行的游戏任务id
+    private int gameTaskId = -1; //should play
+    private static int currentNetworkId = -1; //当前实际的网络配置id
+    private static int taskNetworkId = -1; //当前应该执行的任务的网络配置id
+    public static void setCurrentNetworkId(int id){
+        currentNetworkId = id;
+    }
+    @Autowired
+    private RestTemplate restTemplate;
+    private final String gameServerUrl = "http://192.168.3.11:8085";
     /**
      * 返回云游戏任务列表
      * @return
@@ -72,18 +90,7 @@ public class GameTaskController {
         return "ok";
     }
 
-    /**
-     * 更新游戏任务
-     * @param gameTask 游戏任务
-     * @return
-     */
-    @PostMapping("/update")
-    public String updateGameTask(@RequestBody GameTask gameTask){
-        System.out.println("******更新游戏任务****");
-        //只会更新游戏的用户名，网络id 编码方案id
-        gameTaskService.updateGameTask(gameTask);
-        return "ok";
-    }
+
 
     /**
      * 删除游戏任务，注意将游戏方案的isused -1
@@ -102,37 +109,186 @@ public class GameTaskController {
         testerService.updateIsUsedByUsername(gameTask.getUsername(),-1);
         return "ok";
     }
+    @GetMapping("/getCurrentTask")
+    public int queryCurrentTask(){
+        GameTask gameTask = gameTaskService.queryGameTaskByStatus(1);
+        if(gameTask==null ){
+            return -1;
+        }else{
+            playingGameTaskID = gameTask.getIdgameTask();
+            return gameTask.getIdgameTask();
+        }
+    }
 
-
-    @GetMapping("/adminStop")
-    public Boolean adminStop(int id){
-
-        return false;
+    @GetMapping("/resetNetwork")
+    public String restNetwork(){
+        videoNetworkService.setNetworkConfig(-1);
+        currentNetworkId = -1;
+        return "ok";
     }
 
     /**
-     * 将当前游戏任务的status置为1
-     *
+     * 获取当前实际的网络设置
+     * @return 当前的网络状态,如果为设置，就返回一个全是0的网络对象
+     */
+    @GetMapping("/getCurrentNetwork")
+    public VideoNetwork queryCurrentNetwork(){
+        if(currentNetworkId==-1) return new VideoNetwork(0,0+"",0+"",0+"",0+"",0);
+        System.out.println(currentNetworkId);
+        return videoNetworkService.query(currentNetworkId);
+    }
+
+    /**
+     * 重新将网络设置成当前任务的网络配置
+     * @return 成功设置返回true，失败返回false
+     */
+    @GetMapping("/setCurrentNetwork")
+    public Boolean setCurrentNetwork(){
+        int temp = currentNetworkId;
+        System.out.println("********************查看当前有没有执行的任务**************");
+        //通过assessment 状态查找任务
+        GameTask gameTask = gameTaskService.queryGameTaskByStatus(1);
+        if(gameTask==null ){
+            System.out.println("当前没有正在执行的任务");
+            playingGameTaskID = -1;
+            taskNetworkId = -1;
+            System.out.println("***************当前没有执行的任务********************");
+        }else{
+            taskNetworkId = gameTask.getIdVideoNetwork();
+            //使网络配置生效
+            try {
+                videoNetworkService.setNetworkConfig(taskNetworkId);
+                currentNetworkId = taskNetworkId;
+            } catch (RuntimeException e) {
+                System.out.println("到WANem的连接异常");
+                currentNetworkId = temp;
+                //e.printStackTrace();
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+
+    /**
+     * 游戏任务
+     * 停止游戏，
+     * 停止网络，
+     * 停止更新评价状态为2，
+     * 更新正在执行的网络状态、目前网络状态、目前游戏任务id
+     * @param id
+     * @return
+     */
+    @GetMapping("/adminStop")
+    public Boolean adminStop(int id) {
+        GameTask gameTask = gameTaskService.queryGameTaskById(id);
+        GameEncodingScheme gameEncodingScheme = gameEncodingSchemeService.queryEncodingSchemeById(gameTask.getIdgameEncodingScheme());
+        Game game = gameService.queryGameByID(gameEncodingScheme.getIdGame());
+        try{
+            endGame(game.getGameName(),gameEncodingScheme.getWidth()+"");
+        }catch (Exception e){
+            System.out.println("无法结束远程游戏");
+            return  false;
+        }
+        playingGameTaskID = -1;
+        //使网络配置生效
+        int temp = currentNetworkId;
+        try {
+            videoNetworkService.setNetworkConfig(-1);
+            taskNetworkId = -1;
+            currentNetworkId= -1;
+        } catch (RuntimeException e) {
+            System.out.println("到WANem的连接异常");
+            currentNetworkId = temp;
+            //e.printStackTrace();
+            return false;
+        }
+        // update assessment statu
+        gameTaskService.updateStatusById(id,2);
+        gameTaskService.updateAssessmentStatusById(id,2);
+        return true;
+    }
+
+    /**
+     * 启动游戏任务
+     * 启动网络 更新正在执行的网络状态i 目前网络状态
+     * 更新评价状态
      * @param id 游戏任务的id
      * @return ok
      */
     @GetMapping("/adminPlay")
     @Transactional
-    public Map<String,Object> gameTaskAdminPlay(int id){
+    public Map<String,Object> gameTaskAdminPlay(int id)  {
         Map<String,Object> map = new HashMap<>();
-        if(playingGameTaskID!=-1){
-            map.put("status",404);
-            map.put("message","目前已经有正在执行任务！");
-        }else{
+
             //将当前游戏任务的status置为1
             gameTaskService.updateStatusById(id,1);
-            playingGameTaskID = id;
+            GameEncodingScheme gameEncodingScheme = gameEncodingSchemeService.queryEncodingSchemeById(gameTaskService.queryGameTaskById(id).getIdgameEncodingScheme()) ;
+            int gameId = gameEncodingScheme.getIdGame();
+            Game game = gameService.queryGameByID(gameId);
+            try{
+                startUpGame(game.getGamePath(),game.getGameName(),gameEncodingScheme.getWidth()+"");
+                playingGameTaskID = id;
+            }catch (Exception e){
+                System.out.println("无法正常启动游戏");
+                map.put("status",404);
+                map.put("message","无法正常启动游戏");
+            }
+            int networkID= gameTaskService.queryGameTaskById(id).getIdVideoNetwork();
+            int temp = currentNetworkId;
+            //使网络配置生效
+            try {
+                videoNetworkService.setNetworkConfig(networkID);
+                currentNetworkId = networkID;
+                taskNetworkId = networkID;
+            } catch (RuntimeException e) {
+                System.out.println("到WANem的连接异常");
+                currentNetworkId = temp;
+                taskNetworkId = -1;
+                e.printStackTrace();
+                map.put("status", 408);
+                map.put("message", "网络模拟器服务连接超时");
+                //return map;
+            }
             map.put("status",200);
             map.put("message","该任务开始执行了！");
-        }
 
         return map;
     }
+    @GetMapping("/stopGame")
+    public Boolean StopGame()  {
+        //通过assessment 状态查找任务
+        GameTask gameTask = gameTaskService.queryGameTaskByStatus(1);
+        if(gameTask!=null){
+            GameEncodingScheme gameEncodingScheme = gameEncodingSchemeService.queryEncodingSchemeById(gameTask.getIdgameEncodingScheme());
+            Game game = gameService.queryGameByID(gameEncodingScheme.getIdGame());
+            try{
+                endGame(game.getGameName(),gameEncodingScheme.getWidth()+"");
+            }catch (Exception e){
+                return false;
+            }
+        }
+        return true;
+    }
+    @GetMapping("/startGameAgain")
+    public Boolean startGameAgain()  {
+        //通过assessment 状态查找任务
+        GameTask gameTask = gameTaskService.queryGameTaskByStatus(1);
+        if(gameTask!=null){
+            GameEncodingScheme gameEncodingScheme = gameEncodingSchemeService.queryEncodingSchemeById(gameTask.getIdgameEncodingScheme());
+            Game game = gameService.queryGameByID(gameEncodingScheme.getIdGame());
+
+            try{
+                startUpGame(game.getGamePath(),game.getGameName(),gameEncodingScheme.getWidth()+"");
+            }catch (Exception e){
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     /**
      * 判断当前用户是否有云游戏测试任务
@@ -175,16 +331,22 @@ public class GameTaskController {
     @Transactional
     public String updateAssessment(int screenFluency,int screenSharpness,int screenColor,int gameDelay,int gameLag){
         GameTask gameTask = gameTaskService.queryGameTaskByStatus(1);
-        if(playingGameTaskID!=-1 ||  gameTask!=null){
+        if(playingGameTaskID!=-1 &&  gameTask!=null){
             gameTaskService.updateAssessmentById(gameTask.getIdgameTask(),screenFluency,screenSharpness,screenColor,gameDelay,gameLag);
             gameTaskService.updateAssessmentStatusById(gameTask.getIdgameTask(),2);
             gameTaskService.updateStatusById(gameTask.getIdgameTask(),2);
             playingGameTaskID=-1;
+
+            GameEncodingScheme gameEncodingScheme = gameEncodingSchemeService.queryEncodingSchemeById(gameTask.getIdgameEncodingScheme());
+            Game game = gameService.queryGameByID(gameEncodingScheme.getIdGame());
+            try{
+                endGame(game.getGameName(),gameEncodingScheme.getWidth()+"");
+            }catch (Exception e){
+            }
             return "ok";
         }else{
             return "no game is playing now";
         }
-
     }
 
     /**
@@ -195,6 +357,11 @@ public class GameTaskController {
     @PostMapping("/updateRealData")
     public String updateRealData(@RequestBody GameTask gameTask){
         System.out.println("*****更新真实数据****");
+        GameTask currentGameTask = gameTaskService.queryGameTaskByStatus(1);
+        if(currentGameTask==null){
+            return "false";
+        }
+        playingGameTaskID = currentGameTask.getIdgameTask();
         System.out.println(playingGameTaskID);
         gameTask.setIdgameTask(playingGameTaskID);
         System.out.println(gameTask);
@@ -232,19 +399,26 @@ public class GameTaskController {
         return null;
     }
 
-    @GetMapping("/startUpGame")
-    public String startUpGame(String gameName)  throws IOException{
-
-            String  command = "cmd.exe /c start D:/work/program/5gvideowebcode/gametest/gametest/"+gameName+".exe";
-            Runtime.getRuntime().exec(command);
-
-
-        return "ok";
+    /**
+     * control cloud game start
+     * @return
+     * @throws IOException
+     */
+    private String startUpGame(String gamePath,String gameName,String gameResolution)  throws IOException{
+        String url = gameServerUrl+"/startUpGame"+"?gamePath={1}&gameName={2}&gameResolution={3}";
+        ResponseEntity<String> entity = restTemplate.getForEntity(url, String.class,gamePath,gameName,gameResolution);
+        return entity.getBody();
     }
-    @GetMapping("/endGame")
-    public String endGame(String gameName) throws IOException {
-        String commmand = "tskill "+ gameName;
-        Runtime.getRuntime().exec(commmand);
-        return "ok";
+
+    /**
+     * control cloud game stop
+     * @param gameName
+     * @return
+     * @throws IOException
+     */
+    private String endGame(String gameName,String gameResolution) throws IOException {
+        String url = gameServerUrl+"/endGame"+"?gameName={1}&gameResolution={2}";
+        ResponseEntity<String> entity = restTemplate.getForEntity(url, String.class,gameName,gameResolution);
+        return entity.getBody();
     }
 }

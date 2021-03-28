@@ -18,10 +18,10 @@
 
     <insert id="addGameTask" parameterType="GameTask" useGeneratedKeys="true" keyProperty="idgameTask">
         insert into gameTask (username,idVideoNetwork,idgameEncodingScheme,status,screenFluency,screenSharpness,screenColor,gameDelay,gameLag,
-        assessmentStatus,realWidth,realHeight,realFrameRate,realBitRate_Mbps,realBandWidth_Mbps,realTotalLossPacket,realPacketRecive
+        assessmentStatus,realWidth,realHeight,realFrameRate,realBitRate_Mbps,realTotalLossPacket,realPacketRecive,realBytesRecive
         )
         values (#{username},#{idVideoNetwork},#{idgameEncodingScheme},#{status},#{screenFluency},#{screenSharpness},#{screenColor},#{gameDelay},#{gameLag},
-        #{assessmentStatus},#{realWidth},#{realHeight},#{realFrameRate},#{realBitRate_Mbps},#{realBandWidth_Mbps},#{realTotalLossPacket},#{realPacketRecive})
+        #{assessmentStatus},#{realWidth},#{realHeight},#{realFrameRate},#{realBitRate_Mbps},#{realTotalLossPacket},#{realPacketRecive},#{realBytesRecive})
     </insert>
 
     <update id="updateGameTask" parameterType="GameTask" >
@@ -32,24 +32,12 @@
     <update id="updateGameTaskByRealData" parameterType="GameTask" >
         update gameTask
         set  realWidth=#{realWidth},
-            realHeight=#{realHeight},
-            realTotalLossPacket=realTotalLossPacket+#{realTotalLossPacket},
-            realPacketRecive=realPacketRecive+#{realPacketRecive},
-        realFrameRate=(
-        case
-            when realFrameRate=0 then #{realFrameRate}
-            else (realFrameRate+#{realFrameRate})/2
-        end),
-        realBitRate_Mbps=(
-        case
-            when realBitRate_Mbps=0 then #{realBitRate_Mbps}
-            else (realBitRate_Mbps+#{realBitRate_Mbps})/2
-        end),
-        realBandWidth_Mbps=(
-        case
-            when realBandWidth_Mbps=0 then #{realBandWidth_Mbps}
-            else (realBandWidth_Mbps+#{realBandWidth_Mbps})/2
-        end)
+             realHeight=#{realHeight},
+             realTotalLossPacket=#{realTotalLossPacket},
+             realBytesRecive=#{realBytesRecive},
+             realBitRate_Mbps= #{realBitRate_Mbps},
+             realFrameRate= #{realFrameRate},
+             realPacketRecive= #{realPacketRecive}
         where idgameTask=#{idgameTask}
     </update>
 

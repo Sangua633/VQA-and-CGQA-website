@@ -15,11 +15,11 @@
     </select>
 
     <insert id="addGame" parameterType="Game" useGeneratedKeys="true" keyProperty="idgame">
-        insert into game (gameName,gameType,cover) values (#{gameName},#{gameType},#{cover})
+        insert into game (gameName,gameType,cover,gamePath) values (#{gameName},#{gameType},#{cover},#{gamePath})
     </insert>
 
     <update id="updateGame" parameterType="Game" useGeneratedKeys="true" keyProperty="idgame">
-        update game set gameName=#{gameName},gameType=#{gameType},cover=#{cover}
+        update game set gameName=#{gameName},gameType=#{gameType},cover=#{cover},gamePath=#{gamePath}
     </update>
     <delete id="deleteGameByID" parameterType="int">
         delete from game where idgame=#{id}

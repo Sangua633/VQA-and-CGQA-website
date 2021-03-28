@@ -34,6 +34,11 @@ public class GameTaskService {
         return gameTaskMapper.updateGameTask(gameTask);
     }
     public int updateGameTaskByRealData(GameTask gameTask){
+        GameTask origameTask = queryGameTaskById(gameTask.getIdgameTask());
+        String realBitRate_Mbps = String.valueOf((Double.valueOf(origameTask.getRealBitRate_Mbps())+Double.valueOf(gameTask.getRealBitRate_Mbps()))/2d);
+        String realFrameRate= String.valueOf((Double.valueOf(origameTask.getRealFrameRate())+Double.valueOf(gameTask.getRealFrameRate()))/2d);
+        gameTask.setRealBitRate_Mbps(realBitRate_Mbps);
+        gameTask.setRealFrameRate(realFrameRate);
         return gameTaskMapper.updateGameTaskByRealData(gameTask);
     }
     public void updateStatusById(int id,int status){
@@ -46,7 +51,7 @@ public class GameTaskService {
         gameTaskMapper.updateAssessmentById(id,screenFluency,screenSharpness,screenColor,gameDelay,gameLag);
     }
     public void updateTimestampById(int id,String timestamp){
-        System.out.println(timestamp);
+        System.out.println("timestamp: "+timestamp);
         gameTaskMapper.updateTimestampById(id,timestamp+",");
     }
 

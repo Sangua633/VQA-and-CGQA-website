@@ -38,10 +38,10 @@ public class VideoTaskController {
     @Resource
     private VideoNetworkService videoNetworkService;
     @Resource TesterService testerService;
-    private  final String vodPath = "http://10.112.79.206:8080/hls_vod/"; //点播拉流地址
+    private  final String vodPath = "/hls_vod/"; //点播拉流地址
     private  final String vodServerPath = "/usr/local/nginx/html/hls_vod/"; //本机nginx地址
-    private  final String liveURL = "http://10.112.79.206:8080/hls/home1.m3u8"; //直播拉流地址
-    private final String mediaServer = "http://10.112.79.206:8085" ;//流媒体服务器url
+    private  final String liveURL = "/hls/home1.m3u8"; //直播拉流地址
+    private final String mediaServer = "http://192.168.3.3:8085" ;//流媒体服务器url
     private int liveIdMerge = -1;  //目前实际正在直播的流的idmerge  如果没有直播，则为-1
     private static int currentNetworkId = -1; //当前实际的网络配置id
     private static int taskNetworkId = -1; //当前应该执行的任务的网络配置id
@@ -210,6 +210,7 @@ public class VideoTaskController {
     @GetMapping("/getCurrentNetwork")
     public VideoNetwork queryCurrentNetwork(){
         if(currentNetworkId==-1) return new VideoNetwork(0,0+"",0+"",0+"",0+"",0);
+        System.out.println(currentNetworkId);
         return videoNetworkService.query(currentNetworkId);
     }
 
@@ -220,6 +221,19 @@ public class VideoTaskController {
     @GetMapping("/setCurrentNetwork")
     public Boolean setCurrentNetwork(){
         int temp = currentNetworkId;
+        System.out.println("********************查看当前有没有执行的任务**************");
+        //通过assessment 状态查找任务
+        List<Integer> distinctIdvt = videoTask_testerService.queryDistinctIdvtByAssessmentStatus(1);
+        System.out.println(distinctIdvt.size());
+        if(distinctIdvt.size()==0){ //no running task
+            currentIdMerge = -1;
+            taskNetworkId = -1;
+            System.out.println("***************当前没有执行的任务********************");
+
+        }else{
+            VideoTask videoTask = videoTaskService.queryTaskByID(distinctIdvt.get(0));
+            taskNetworkId = videoTask.getIdVideoNetwork();
+        }
         //使网络配置生效
         try {
             setCurrentNetworkId(taskNetworkId);
@@ -270,6 +284,10 @@ public class VideoTaskController {
     public void updateAssessmentByID(@RequestBody Map<String,Integer> map){
         int id = map.get("id");
         System.out.println("assessmentid "+id);
+        VideoTask_Tester videoTask_tester = videoTask_testerService.queryByID(id);
+        if(videoTask_tester.getAssessmentStatus()!=1){
+            return;
+        }
         videoTask_testerService.updateAssessmentByID(id,map.get("sharpness"),map.get("fluency"),map.get("color"));
         int idvt = videoTask_testerService.queryIdVideoTaskByID(id);
         System.out.println("idvt"+idvt);
@@ -303,7 +321,7 @@ public class VideoTaskController {
         } catch (RuntimeException e) {
             System.out.println("到WANem的连接异常");
             //e.printStackTrace();
-            //return map;
+            //return "false";
         }
         //通过idmerge查询idvideotask
         List<Integer> idvts = videoTaskService.queryIdTaskByIdMerge(idMerge);
@@ -352,6 +370,7 @@ public class VideoTaskController {
         Map<String,Object> map = new HashMap<>();
         //通过idmerge查询idvideotask
         List<Integer> idvts = videoTaskService.queryIdTaskByIdMerge(idMerge);
+        int temp = currentNetworkId;
         if(idvts!=null) {
             VideoTask videoTaskTemp = videoTaskService.queryTaskByID(idvts.get(0));
             //使网络配置生效
@@ -362,7 +381,7 @@ public class VideoTaskController {
                 videoNetworkService.setNetworkConfig(networkID);
             } catch (RuntimeException e) {
                 System.out.println("到WANem的连接异常");
-                setCurrentNetworkId(-1);
+                setCurrentNetworkId(temp);
                 setTaskNetworkId(-1);
                 e.printStackTrace();
                 map.put("status", 408);
